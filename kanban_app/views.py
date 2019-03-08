@@ -29,8 +29,8 @@ class AddCardView(APIView):
         new_card = AddCardSerializer(data=request.data)
         if new_card.is_valid():
             new_card.save(creator=request.user)
-            return Response({'state': 'Add'})
-        return Response({'state': 'Error'})
+            return Response(status=201)
+        return Response(status=400)
 
 
 class DeleteCardView(APIView):
@@ -42,5 +42,5 @@ class DeleteCardView(APIView):
         del_card = Card.objects.get(id=card_id)
         if del_card:
             del_card.delete()
-            return Response({'state': 'Deleted'})
-        return Response({'state': 'Delete Error'})
+            return Response(status=204)
+        return Response(status=400)

@@ -105,57 +105,18 @@
                     headers: {"Authorization": "Token " + sessionStorage.getItem("auth_token")},
                 });
             }
-            this.loadCards0();
-            this.loadCards1();
-            this.loadCards2();
-            this.loadCards3()
+            this.updateBoardData()
         },
         methods: {
-            loadCards0() {
+            loadCards(collection, status) {
                 $.ajax({
                     url: "http://127.0.0.1:8000/api/v1/kanban/card/",
                     type: "GET",
                     data: {
-                        status: "on hold"
+                        status: status
                     },
                     success: (response) => {
-                        this.items0 = response;
-                    },
-                })
-            },
-            loadCards1() {
-                $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/kanban/card/",
-                    type: "GET",
-                    data: {
-                        status: "in progress"
-                    },
-                    success: (response) => {
-                        this.items1 = response;
-                    },
-                })
-            },
-            loadCards2() {
-                $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/kanban/card/",
-                    type: "GET",
-                    data: {
-                        status: "needs review"
-                    },
-                    success: (response) => {
-                        this.items2 = response;
-                    },
-                })
-            },
-            loadCards3() {
-                $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/kanban/card/",
-                    type: "GET",
-                    data: {
-                        status: "approved"
-                    },
-                    success: (response) => {
-                        this.items3 = response;
+                        this[collection] = response;
                     },
                 })
             },
@@ -168,8 +129,7 @@
                         text: this.newCardHeader
                     },
                     success: (response) => {
-                        console.log(response);
-                        this.updateBoardData(status);
+                        this.updateBoardData(status)
                     },
                     error: (response) => {
                         alert(response.statusText)
@@ -184,8 +144,7 @@
                         card_id: card.id
                     },
                     success: (response) => {
-                        console.log(response);
-                        this.updateBoardData(card.status);
+                        this.updateBoardData(card.status)
                     },
                     error: (response) => {
                         alert(response.statusText)
@@ -195,22 +154,22 @@
             updateBoardData(status) {
                 switch (status) {
                     case "on hold":
-                        this.loadCards0();
+                        this.loadCards("items0", status);
                         break;
                     case "in progress":
-                        this.loadCards1();
+                        this.loadCards("items1", status);
                         break;
                     case "needs review":
-                        this.loadCards2();
+                        this.loadCards("items2", status);
                         break;
                     case "approved":
-                        this.loadCards3();
+                        this.loadCards("items3", status);
                         break;
                     default:
-                        this.loadCards0();
-                        this.loadCards1();
-                        this.loadCards2();
-                        this.loadCards3();
+                        this.loadCards("items0", "on hold");
+                        this.loadCards("items1", "in progress");
+                        this.loadCards("items2", "needs review");
+                        this.loadCards("items3", "approved");
                 }
             },
             onDrop: function(collection, dropResult) {

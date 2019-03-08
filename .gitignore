@@ -1,0 +1,11 @@
+.idea
+myvenv
+local_settings.py
+__pycache__/
+*/__pycache__/
+*.py[cod]
+.pyc
+*~
+db.sqlite3
+.DS_Store
+autorization.txt

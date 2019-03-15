@@ -1,5 +1,6 @@
 export const applyDrag = (arr, dragResult) => {
     const { removedIndex, addedIndex, payload } = dragResult;
+    // alert("New status of element with id=" + payload.id + " is - '")
     if (removedIndex === null && addedIndex === null) return arr;
     const result = [...arr];
     let itemToAdd = payload;

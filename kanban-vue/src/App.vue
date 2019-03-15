@@ -8,13 +8,6 @@
 <script>
     export default {
         name: 'App',
-        // created() {
-        //     if (localStorage.getItem("auth_token")){
-        //         $.ajaxSetup({
-        //             headers: {"Authorization": "Token " + localStorage.getItem("auth_token")},
-        //         });
-        //     }
-        // }
     }
 </script>
 
@@ -24,7 +17,7 @@
         -webkit-font-smoothing: antialiased;
         -moz-osx-font-smoothing: grayscale;
         text-align: center;
-        color: #2c3e50;
+        color: #2aabd2;
         margin-top: 60px;
     }
 </style>

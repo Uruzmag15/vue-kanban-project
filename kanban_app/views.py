@@ -1,17 +1,30 @@
-from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.response import Response
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated, AllowAny
+from .permissions import IsOwnerOrReadOnly
 
 from .models import Card
-from .serializers import CardSerializer, AddCardSerializer
+from .serializers import CardSerializer
 
 
-class CardsView(APIView):
-    # permission_classes = (IsAuthenticated, )
-    permission_classes = (AllowAny,)
+class CardViewSet(ModelViewSet):
+    serializer_class = CardSerializer
+    queryset = Card.objects.all()
 
-    def get(self, request):
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve']:
+            permission_classes = [AllowAny]
+        else:
+            permission_classes = [IsAuthenticated]
+            if self.action == 'destroy':
+                permission_classes += [IsOwnerOrReadOnly]
+
+        return [permission() for permission in permission_classes]
+
+    def list(self, request):
         status = request.GET.get('status')
+        print('+++++++++++'+status)
         if status:
             cards = Card.objects.filter(status__iexact=status)
         else:
@@ -19,28 +32,9 @@ class CardsView(APIView):
         serializer = CardSerializer(cards, many=True)
         return Response(serializer.data)
 
-
-class AddCardView(APIView):
-    permission_classes = (IsAuthenticated, )
-    # permission_classes = (AllowAny, )
-
-    def post(self, request):
-        # text = request.data.get('text')
-        new_card = AddCardSerializer(data=request.data)
-        if new_card.is_valid():
-            new_card.save(creator=request.user)
-            return Response(status=201)
-        return Response(status=400)
-
-
-class DeleteCardView(APIView):
-    permission_classes = (IsAuthenticated, )
-    # permission_classes = (AllowAny, )
-
-    def get(self, request):
-        card_id = request.GET.get('card_id')
-        del_card = Card.objects.get(id=card_id)
-        if del_card:
-            del_card.delete()
-            return Response(status=204)
-        return Response(status=400)
+    def create(self, request):
+        serializer = CardSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(creator=request.user)
+            return Response(status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_400_BAD_REQUEST)

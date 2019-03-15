@@ -36,7 +36,7 @@
         </div>
         <div class="row">
             <h3 class="header yellow">Needs Review ({{items2.length}})</h3>
-            <Container :group-name="'1'" :get-child-payload="getChildPayload2" @drop="onDrop('items2', $event)">
+            <Container :group-name="'1'" :get-child-payload="getChildPayload2" @drop="onDrop('items2', $event, 'needs review')">
                 <Draggable v-for="item in items2" :key="item.id">
                     <div class="draggable-item">
                         <div class="delete" @click="deleteItem(item)"></div>
@@ -53,7 +53,7 @@
         </div>
         <div class="row">
             <h3 class="header green">Approved ({{items3.length}})</h3>
-            <Container :group-name="'1'" :get-child-payload="getChildPayload3" @drop="onDrop('items3', $event)">
+            <Container :group-name="'1'" :get-child-payload="getChildPayload3" @drop="onDrop('items3', $event, 'approved')">
                 <Draggable v-for="item in items3" :key="item.id">
                     <div class="draggable-item">
                         <div class="delete" @click="deleteItem(item)"></div>
@@ -110,7 +110,7 @@
         methods: {
             loadCards(collection, status) {
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/kanban/card/",
+                    url: "http://127.0.0.1:8000/api/v1/kanban/cards/",
                     type: "GET",
                     data: {
                         status: status
@@ -120,9 +120,9 @@
                     },
                 })
             },
-            addNewCard(status) {
+            createCard(status) {
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/kanban/card/add/",
+                    url: "http://127.0.0.1:8000/api/v1/kanban/cards/",
                     type: "POST",
                     data: {
                         status: status,
@@ -138,13 +138,28 @@
             },
             deleteCard(card) {
                 $.ajax({
-                    url: "http://127.0.0.1:8000/api/v1/kanban/card/delete/",
-                    type: "GET",
-                    data: {
-                        card_id: card.id
-                    },
+                    url: "http://127.0.0.1:8000/api/v1/kanban/cards/" + card.id + "/",
+                    type: "DELETE",
                     success: (response) => {
                         this.updateBoardData(card.status)
+                    },
+                    error: (response) => {
+                        if (response.status === 403)
+                            alert("Вы не можете удалить эту запись!");
+                        else
+                            alert(response.statusText)
+                    }
+                })
+            },
+            updateCardStatus(card) {
+                $.ajax({
+                    url: "http://127.0.0.1:8000/api/v1/kanban/cards/" + card.id + "/",
+                    type: "PATCH",
+                    data: {
+                        status: card.status
+                    },
+                    success: (response) => {
+                        this.updateBoardData()
                     },
                     error: (response) => {
                         alert(response.statusText)
@@ -172,17 +187,16 @@
                         this.loadCards("items3", "approved");
                 }
             },
-            onDrop: function(collection, dropResult) {
+            onDrop: function(collection, dropResult, status) {
+                const { removedIndex, addedIndex, payload, element } = dropResult;
+                if (addedIndex !== null) {
+                    payload.status = status;
+                    this.updateCardStatus(payload);
+                }
                 this.hideAddACardTextarea();
                 this[collection] = applyDrag(this[collection], dropResult);
                 saveItems(collection, this[collection])
             },
-            // onDrop: function(collection, dropResult, status) {
-            //     this.hideAddACardTextarea();
-            //     this[collection] = applyDrag(this[collection], dropResult);
-            //     saveItems(collection, this[collection]);
-            //     this.updateBoardData();
-            // },
             getChildPayload0: function(index) {
                 return this.items0[index];
             },
@@ -195,28 +209,12 @@
             getChildPayload3: function(index) {
                 return this.items3[index];
             },
-            // addItem: function(collection) {
-            //     if (this.newCardHeader) {
-            //         const d = new Date();
-            //         const newID = d.getTime();
-            //         this[collection].push({ id: newID, header: this.newCardHeader });
-            //         saveItems(collection, this[collection]);
-            //         this.hideAddACardTextarea();
-            //     }
-            // },
             addItem: function(status) {
                 if (this.newCardHeader) {
-                    this.addNewCard(status);
+                    this.createCard(status);
                     this.hideAddACardTextarea();
                 }
             },
-            // deleteItem: function(collection, item) {
-            //     let index = this[collection].map(x => {
-            //         return x.id;
-            //     }).indexOf(item.id);
-            //     this[collection].splice(index, 1);
-            //     saveItems(collection, this[collection]);
-            // },
             deleteItem: function(item) {
                 if (sessionStorage.getItem("auth_token")) {
                     this.deleteCard(item);
@@ -244,7 +242,6 @@
                     }, 0);
                 }
                 else alert("Авторизуйтесь для добавления карточек!")
-
             }
         }
     };

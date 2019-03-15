@@ -12,15 +12,8 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class CardSerializer(serializers.ModelSerializer):
-    creator = UserSerializer()
+    # creator = UserSerializer()
 
     class Meta:
         model = Card
-        fields = ('id', 'creator', 'status', 'text', 'date')
-
-
-class AddCardSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Card
-        fields = ('status', 'text')
+        fields = ('id', 'status', 'text', 'date')

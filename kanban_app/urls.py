@@ -1,9 +1,12 @@
-from django.urls import path
+from django.urls import path, include
+from rest_framework import routers
 
 from .views import *
 
+
+router = routers.DefaultRouter()
+router.register(r'cards', CardViewSet)
+
 urlpatterns = [
-    path('card/', CardsView.as_view()),
-    path('card/add/', AddCardView.as_view()),
-    path('card/delete/', DeleteCardView.as_view()),
+    path('', include(router.urls)),
 ]

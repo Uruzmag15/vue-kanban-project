@@ -137,7 +137,6 @@ REST_FRAMEWORK = {
         'rest_framework.permissions.AllowAny',
         'rest_framework.permissions.IsAuthenticated',
     ),
-    'PAGE_SIZE': 10,
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.BasicAuthentication',
@@ -146,6 +145,7 @@ REST_FRAMEWORK = {
     ),
     # 'EXCEPTION_HANDLER': 'rest_framework_json_api.exception.exception_handler',
     'DEFAULT_PAGINATION_CLASS': 'rest_framework_json_api.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10,
     'DEFAULT_PARSER_CLASSES': (
         'rest_framework_json_api.parsers.JSONParser',
         'rest_framework.parsers.FormParser',
